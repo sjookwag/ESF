@@ -1,0 +1,15 @@
+{% extends 'layout.html' %}
+{% block title %}File Upload{% endblock %}
+{% block content %}
+{%with messages = get_flashed_messages()%}
+{%if messages %}
+  <script type="text/javascript">
+    alert("{{messages[-1]}}");
+  </script>
+  {%endif%}
+{%endwith%}
+<form action="{{ url_for('upload') }}" method = "POST" enctype = "multipart/form-data">
+<input type = 'file' name = 'file' />
+<input type = 'submit'/>
+</form>
+{% endblock %}
