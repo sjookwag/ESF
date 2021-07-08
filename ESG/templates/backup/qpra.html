@@ -1,0 +1,398 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h1>QUANTITATIVE PROJECT RISK</h1>
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">MODEL <span>      
+    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#AddRisk"><i class="fas fa-plus-circle"></i> Add Risk</a> 
+    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#Simulate"><i class="fab fa-creative-commons-sampling"></i> Simulate</a></span>
+  </div>
+    
+  <div class="card-body">
+
+    <div class="card" id="m01">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>#1 Unknown site conditions </span>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-secondary">Exclude</button>
+          <button type="button" class="btn btn-secondary">Update</button>
+          <button type="button" class="btn btn-secondary">Delete</button>
+        </div>        
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush itemDescription">
+          <li class="list-group-item">(@category)Technical Risk</li>
+          <li class="list-group-item">(@Frequency Dist.)Bernoulli, 0.25,None,0</li>
+          <li class="list-group-item">(@Severity  Dist.)Uniform, 400,800,None,423.31</li>            
+        </ul>
+      </div>
+    </div>
+    
+    <div class="card" id="m02">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>#2 (@risk name)Damage or theft to equipment</span>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-secondary">Exclude</button>
+          <button type="button" class="btn btn-secondary">Update</button>
+          <button type="button" class="btn btn-secondary">Delete</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush itemDescription">
+          <li class="list-group-item">(@category)Logistics Risk</li>
+          <li class="list-group-item">(@Frequency Dist.)Poisson, 4,None,4</li>
+          <li class="list-group-item">(@Severity  Dist.)Pert, 70,80,200,91.73</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="card" id="m03">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>#3 (@risk name)Community problems</span>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-secondary">Exclude</button>
+          <button type="button" class="btn btn-secondary">Update</button>
+          <button type="button" class="btn btn-secondary">Delete</button>
+        </div>        
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush itemDescription">
+          <li class="list-group-item">(@category)Socio-political Risk</li>
+          <li class="list-group-item">(@Frequency Dist.)Binomial, 30,0.05,2</li>
+          <li class="list-group-item">(@Severity  Dist.)TriangPerc, 150,0.1,200,152.29</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>  <!-- card-body -->
+
+</div>   <!-- card -->
+
+<!-- [Add Risk] Modal -->
+<div id="AddRisk" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="modelParameters" method="POST" action="{{ url_for('qpra.newModel') }}">
+        <div class="modal-header">
+          <h4 class="modal-title">Add Model</h4>
+        </div>
+        <div class="modal-body">
+            
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="riskModelName">{{ form.ModelName.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {{ form.ModelName(class="form-control form-control-lg) }}
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="Category">{{ form.category.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              <select id="Category" class="form-control">
+                <option selected>Choose...</option>
+                <option value="Tot">Total Risk</option>
+                <option value="Tec">Technical Risk</option>
+                <option value="Log">Logistics Risk</option>
+                <option value="Env">Environmental Risk</option>
+                <option value="Man">Management related Risk</option>
+                <option value="Fin">Financial Risk</option>
+                <option value="Soc">Socio-political Risk</option>
+              </select>                
+            </div>  
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="FrqDist">Frq Dist.</label>
+            </div>
+            <div class="form-group col-md-9">
+              <select id="FrqDist" class="form-control">
+                <option selected>Choose...</option>
+                <option value="Ber">Bernoulli</option>
+                <option value="Bin">Binomial</option>
+                <option value="Poi">Poisson</option>
+                <option value="Int">IntUniform</option>                  
+              </select>
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Parameters10">&nbsp;Parameters</label>
+            </div>
+            <div class="form-group col-md-3">
+              <input type="number" step="0.01" class="form-control" id="Parameters10" placeholder="Parameter#1">
+            </div>  
+            <div class="form-group col-md-3">
+              <input type="number" step="0.01" class="form-control" id="Parameters20" placeholder="Parameter#2">
+            </div>  
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="SvrDist">Severity Dist.</label>
+            </div>
+            <div class="form-group col-md-9">
+              <select id="SvrDist" class="form-control">
+                <option selected>Choose...</option>
+                <option value="Exp">Exponential</option>
+                <option value="Gam">Gamma</option>
+                <option value="Log">LogNormal</option>
+                <option value="Nor">Normal</option>
+                <option value="Per">Pert</option>
+                <option value="PeP">PertPerc</option>
+                <option value="Tri">Triangular</option>
+                <option value="TrP">TriangPerc</option>
+                <option value="Uni">Uniform</option>
+              </select>
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="Parameters11">&nbsp;Parameters</label>
+            </div>
+            <div class="form-group col-md-3">
+              <input type="number" step="0.01" class="form-control" id="Parameters11" placeholder="Parameter#1">
+            </div>  
+            <div class="form-group col-md-3">
+              <input type="number" step="0.01" class="form-control" id="Parameters21" placeholder="Parameter#2">
+            </div>  
+            <div class="form-group col-md-3">
+              <input type="number" step="0.01" class="form-control" id="Parameters31" placeholder="Parameter#3">
+            </div>  
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              {{ form.modelName() }}
+            </div>
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <!-- <input type="submit" value="Add" class="btn btn-primary"/> -->
+          {{ form.submit() }}
+          <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveCookies4Model();">Close</button>
+        </div>        
+      </form>            
+    </div>
+  </div>
+</div>
+
+<!-- [Simulate] Modal -->
+<div id="Simulate" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <form id="simParameters">
+      
+        <div class="modal-header">        
+          <h4 class="modal-title">Simulate</h4>
+        </div>
+
+        <div class="modal-body">
+          
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Samples">Samples for drawing input charts</label>
+              </div>
+              <div class="form-group col-md-3">
+                <input type="number" min="1" class="form-control" id="Samples" value="700" aria-describedby="sampleHelp">
+                <small id="sampleHelp" class="form-text text-muted"></small>
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Iterations">Iterations to run on simulation</label>
+              </div>
+              <div class="form-group col-md-3">
+                <input type="number" min="1" class="form-control" id="Iterations" value="200" aria-describedby="iterHelp">
+                <small id="iterHelp" class="form-text text-muted"></small>
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Minimum" checked>
+                <label class="form-check-label" for="Minimum">Minimum</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Maximum" checked>
+                <label class="form-check-label" for="Maximum">Maximum</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Mean" checked>
+                <label class="form-check-label" for="Mean">Mean</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Median" checked>
+                <label class="form-check-label" for="Median">Median</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Mode">
+                <label class="form-check-label" for="Mode">Mode</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Standard_Deviation" checked>
+                <label class="form-check-label" for="Standard_Deviation">Standard Deviation</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Skewness" checked>
+                <label class="form-check-label" for="Skewness">Skewness</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                <input type="checkbox" class="form-check-input" id="Kurtosis" checked>
+                <label class="form-check-label" for="Kurtosis">Kurtosis</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Percentile1">Percentile1(&lt;=1)</label>
+              </div>
+              <div class="form-group col-md-3">
+                <input type="number" step="0.1" min="0.0" max="1.0" class="form-control" id="Percentile1" value="0.1" aria-describedby="percentileHelp">
+                <small id="percentileHelp" class="form-text text-muted"></small>
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Percentile2">Percentile2(&lt;=1)</label>
+              </div>
+              <div class="form-group col-md-3">
+                <input type="number" step="0.1" min="0.0" max="1.0" class="form-control" id="Percentile2" value="0.9" aria-describedby="percentileHelp">
+                <small id="percentileHelp" class="form-text text-muted"></small>
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Target1">Target Value1</label>
+              </div>
+              <div class="form-group col-md-3">
+                <input type="number" min="1" class="form-control" id="Target1" value="30000" aria-describedby="targetHelp">
+                <small id="targetHelp" class="form-text text-muted"></small>
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Target2">Target Value2</label>
+              </div>
+              <div class="form-group col-md-3">
+                <input type="number" min="1" class="form-control" id="Target2" value="40000" aria-describedby="targetHelp">
+                <small id="targetHelp" class="form-text text-muted"></small>
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Bins">Bins Number</label>
+              </div>
+              <div class="form-group col-md-3">
+                <input type="number" min="1" class="form-control" id="Bins" value="100" aria-describedby="binsHelp">
+                <small id="binsHelp" class="form-text text-muted"></small>
+              </div>  
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-warning" >Run</button>
+          <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveCookies4Sim();">Close</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+<script>
+
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";    
+  }
+
+  function getCookie(cname) {
+    let name = cname + "=";
+    let ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  function saveCookies4Model(){
+    ['Category','FrqDist','SvrDist'].forEach( (item)=>{ setCookie(item, $('#'+item).val(), 1000) } );
+    $('#modelParameters').find('input').each(function(i, field) {    
+      setCookie(field.id, field.value, 1000);  
+    });
+  }
+
+  function saveCookies4Sim() {
+    console.log('saveCookies...');
+    $('#simParameters').find('input').each(function(i, field) {
+      if($('#'+field.id).attr('type')=='checkbox'){
+        setCookie(field.id, $('#'+field.id).prop('checked'), 1000);
+      }else{
+        setCookie(field.id, field.value, 1000);
+      }          
+    });
+  }
+
+  $(document).ready(function(){    
+    ['Category','FrqDist','SvrDist','RiskName','Parameters10','Parameters20','Parameters11','Parameters21','Parameters31' ].forEach( (item)=>{ $('#'+item).val(getCookie(item)); } );
+    ['Samples','Iterations','Percentile1','Percentile2','Target1','Target2','Bins'].forEach( (item) => { $('#'+item).val(getCookie(item)); } );
+    ['Minimum','Maximum','Mean','Median','Mode','Standard_Deviation','Skewness','Kurtosis'].forEach( (item) => { $('#'+item).prop('checked', getCookie(item)==='true'); } );
+  });
+
+  $(document).on('click', 'div div div button', function(e){
+    e.preventDefault();       
+    const capButton = $(this).text().trim().toUpperCase();  
+    switch(capButton){
+    case "EXCLUDE":
+      const cardTitle = $(this).parent().siblings();      
+      cardTitle.toggleClass('strike'); // cardTitle.wrap("<strike>");
+      break;
+    case "UPDATE":
+      console.log('Update Button');      
+      break;  
+    case "DELETE":
+      const cardID = $(this).parent().parent().parent().attr('id');
+      $('#'+cardID).attr('style', "display:none;");
+      break;  
+    }      
+  });  
+</script>
+
+{% endblock content %}

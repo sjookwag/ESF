@@ -1,0 +1,388 @@
+{% extends "layout.html" %}
+{% block content %}
+
+<h1>QUANTITATIVE PROJECT RISK</h1>
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">MODEL <span>      
+    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#AddRisk"><i class="fas fa-plus-circle"></i> Add Risk</a> 
+    <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#Simulate"><i class="fab fa-creative-commons-sampling"></i> Simulate</a></span>
+  </div>
+    
+  <div class="card-body">
+    <p class="d-flex justify-content-between align-items-center">
+      <a href="#" class="btn btn-warning" data-toggle="modal"><i class="fas fa-chart-bar"></i> Histogram</a> 
+      <a href="#" class="btn btn-warning" data-toggle="modal">S-Curve</a> 
+      <a href="#" class="btn btn-warning" data-toggle="modal"><i class="fas fa-align-left"></i> Corr. Tornado</a> 
+      <a href="#" class="btn btn-warning" data-toggle="modal">Sensitivity Tornado</a> 
+      <a href="#" class="btn btn-warning" data-toggle="modal">Scatter Plot</a> 
+    </p>
+    <div class="card" id="m01">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>#1 Unknown site conditions </span>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-secondary">Exclude</button>
+          <button type="button" class="btn btn-secondary">Update</button>
+          <button type="button" class="btn btn-secondary">Delete</button>
+        </div>        
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush itemDescription">
+          <li class="list-group-item">(@category)Technical Risk</li>
+          <li class="list-group-item">(@Frequency Dist.)Bernoulli, 0.25,None,0</li>
+          <li class="list-group-item">(@Severity  Dist.)Uniform, 400,800,None,423.31</li>            
+        </ul>
+      </div>
+    </div>
+    
+    <div class="card" id="m02">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>#2 (@risk name)Damage or theft to equipment</span>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-secondary">Exclude</button>
+          <button type="button" class="btn btn-secondary">Update</button>
+          <button type="button" class="btn btn-secondary">Delete</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush itemDescription">
+          <li class="list-group-item">(@category)Logistics Risk</li>
+          <li class="list-group-item">(@Frequency Dist.)Poisson, 4,None,4</li>
+          <li class="list-group-item">(@Severity  Dist.)Pert, 70,80,200,91.73</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="card" id="m03">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span>#3 (@risk name)Community problems</span>
+        <div class="btn-group" role="group" aria-label="Basic example">
+          <button type="button" class="btn btn-secondary">Exclude</button>
+          <button type="button" class="btn btn-secondary">Update</button>
+          <button type="button" class="btn btn-secondary">Delete</button>
+        </div>        
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush itemDescription">
+          <li class="list-group-item">(@category)Socio-political Risk</li>
+          <li class="list-group-item">(@Frequency Dist.)Binomial, 30,0.05,2</li>
+          <li class="list-group-item">(@Severity  Dist.)TriangPerc, 150,0.1,200,152.29</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>  <!-- card-body -->
+
+</div>   <!-- card -->
+
+<!-- [Add Risk] Modal -->
+<div id="AddRisk" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="modelParameters" method="POST" action="{{ url_for('qpra.newModel') }}" onsubmit="return saveCookies4Model()">
+        {{ modelform.csrf_token }}
+        <div class="modal-header">
+          <h4 class="modal-title">Add Model</h4>
+        </div>
+        <div class="modal-body">
+            
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="riskModelName">{{ modelform.ModelName.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {% if modelform.ModelName.errors %}
+                {{ modelform.ModelName(class="form-control form-control-sm is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in modelform.ModelName.errors %}
+                    <span>필수입력항목입니다</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                {{ modelform.ModelName(class="form-control form-control-sm") }}
+              {% endif %}
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="Category">{{ modelform.Category.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {{ modelform.Category(class="form-control form-control-sm") }}
+            </div>  
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="FrqDist">{{ modelform.FrqDist.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {{ modelform.FrqDist(class="form-control form-control-sm") }}              
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="Parameters10">&nbsp;Parameters</label>
+            </div>
+            <div class="form-group col-md-3">
+              {{ modelform.Parameter10(class="form-control form-control-sm") }}
+            </div>  
+            <div class="form-group col-md-3">
+              {{ modelform.Parameter20(class="form-control form-control-sm") }}
+            </div>  
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="SvrDist">{{ modelform.SvrDist.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {{ modelform.SvrDist(class="form-control form-control-sm") }}
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="Parameters11">&nbsp;Parameters</label>
+            </div>
+            <div class="form-group col-md-3">
+              {{ modelform.Parameter11(class="form-control form-control-sm") }}
+            </div>  
+            <div class="form-group col-md-3">
+              {{ modelform.Parameter21(class="form-control form-control-sm") }}
+            </div>  
+            <div class="form-group col-md-3">
+              {{ modelform.Parameter31(class="form-control form-control-sm") }}
+            </div>  
+          </div>
+
+        </div>
+        <div class="modal-footer">
+          <!-- <input type="submit" value="Add" class="btn btn-primary"/> -->
+          {{ modelform.submit(class="btn btn-outline-info") }}
+          <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveCookies4Model();">Close</button>
+        </div>        
+      </form>            
+    </div>
+  </div>
+</div>
+
+<!-- [Simulate] Modal -->
+<div id="Simulate" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <!-- Modal content-->
+    <div class="modal-content">
+      
+      <form id="simParameters" onsubmit="return saveCookies4Sim()">
+        {{ simform.csrf_token }}
+        <div class="modal-header">        
+          <h4 class="modal-title">Simulate</h4>
+        </div>
+
+        <div class="modal-body">
+          
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Samples">{{ simform.Samples.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-3">
+                {{ simform.Samples(class="form-control form-control-sm") }}
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Iterations">{{ simform.Iterations.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-3">
+                {{ simform.Iterations(class="form-control form-control-sm") }}
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Minimum(class="form-check-input") }}
+                <label class="form-check-label" for="Minimum">{{ simform.Minimum.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Maximum(class="form-check-input") }}
+                <label class="form-check-label" for="Maximum">{{ simform.Maximum.label(class="form-control-label") }}</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Mean(class="form-check-input") }}
+                <label class="form-check-label" for="Mean">{{ simform.Mean.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Median(class="form-check-input") }}
+                <label class="form-check-label" for="Median">{{ simform.Median.label(class="form-control-label") }}</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Mode(class="form-check-input") }}
+                <label class="form-check-label" for="Mode">{{ simform.Mode.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Standard_Deviation(class="form-check-input") }}
+                <label class="form-check-label" for="Standard_Deviation">{{ simform.Standard_Deviation.label(class="form-control-label") }}</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-2">&nbsp;</div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Skewness(class="form-check-input") }}
+                <label class="form-check-label" for="Skewness">{{ simform.Skewness.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-5 form-check">
+                {{ simform.Kurtosis(class="form-check-input") }}
+                <label class="form-check-label" for="Kurtosis">{{ simform.Kurtosis.label(class="form-control-label") }}</label>
+              </div>       
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Percentile1">{{ simform.Percentile1.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-3">
+                {{ simform.Percentile1(class="form-control form-control-sm") }}
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Percentile2">{{ simform.Percentile2.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-3">
+                {{ simform.Percentile2(class="form-control form-control-sm") }}
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Target1">{{ simform.Target1.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-3">
+                {{ simform.Target1(class="form-control form-control-sm") }}
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Target2">{{ simform.Target2.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-3">
+                {{ simform.Target2(class="form-control form-control-sm") }}
+              </div>  
+            </div>
+
+            <div class="form-row">
+              <div class="form-group col-md-9">
+                <label for="Bins">{{ simform.Bins.label(class="form-control-label") }}</label>
+              </div>
+              <div class="form-group col-md-3">
+                {{ simform.Bins(class="form-control form-control-sm") }}
+              </div>  
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+          {{ simform.submit(class="btn btn-outline-info") }}
+          <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveCookies4Sim();">Close</button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
+<script>
+
+  function setCookie(cname, cvalue, exdays) {
+    const d = new Date();
+    d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
+    let expires = "expires="+d.toUTCString();
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";    
+  }
+
+  function getCookie(cname) {
+    let name = cname + "=";
+    let ca = document.cookie.split(';');
+    for(let i = 0; i < ca.length; i++) {
+      let c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  function saveCookies4Model(){
+    ['Category','FrqDist','SvrDist'].forEach( (item)=>{ setCookie(item, $('#'+item).val(), 1000) } );
+    $('#modelParameters').find('input').each(function(i, field) {    
+      setCookie(field.id, field.value, 1000);  
+    });
+    return true;
+  }
+
+  function saveCookies4Sim() {
+    console.log('saveCookies...');
+    $('#simParameters').find('input').each(function(i, field) {
+      if($('#'+field.id).attr('type')=='checkbox'){
+        setCookie(field.id, $('#'+field.id).prop('checked'), 1000);
+      }else{
+        setCookie(field.id, field.value, 1000);
+      }          
+    });
+    return true;
+  }
+
+  $(document).ready(function(){   
+    modelsExcluded = []; 
+    ['Category','FrqDist','SvrDist','ModelName','Parameter10','Parameter20','Parameter11','Parameter21','Parameter31'].forEach( (item)=>{ $('#'+item).val(getCookie(item)); } );
+    ['Samples','Iterations','Percentile1','Percentile2','Target1','Target2','Bins'].forEach( (item) => { $('#'+item).val(getCookie(item)); } );
+    ['Minimum','Maximum','Mean','Median','Mode','Standard_Deviation','Skewness','Kurtosis'].forEach( (item) => { $('#'+item).prop('checked', getCookie(item)==='true'); } );
+  });
+
+  $(document).on('click', 'div div div button', function(e){
+    e.preventDefault();       
+    const capButton = $(this).text().trim().toUpperCase();  
+    switch(capButton){
+    case "EXCLUDE":
+      const cardNode = $(this).parent().siblings(0);      
+      cardNode.toggleClass('strike'); 
+      const cardTitle = $(this).parent().siblings(0).text().substr(0,2);        
+      if(modelsExcluded.includes(cardTitle)){
+        i = modelsExcluded.indexOf(cardTitle);
+        modelsExcluded.splice(i,1);
+      }else{
+        modelsExcluded.push(cardTitle);      
+      }
+      console.log(modelsExcluded);  
+      break;
+
+    case "UPDATE":
+      console.log('Update Button');      
+      break;  
+
+    case "DELETE":
+      const cardID = $(this).parent().parent().parent().attr('id');
+      $('#'+cardID).attr('style', "display:none;");
+      break;  
+    }      
+  });  
+</script>
+
+{% endblock content %}

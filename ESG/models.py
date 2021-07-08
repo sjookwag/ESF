@@ -32,6 +32,22 @@ class User(db.Model, UserMixin):
   def __repr__(self):
     return f"User('{self.username}', '{self.email}', '{self.image_file}')"
 
+class Model(db.Model):
+  id = db.Column(db.Integer, primary_key=True)
+  riskname = db.Column(db.String(100), nullable=False)  
+  category = db.Column(db.Integer, nullable=False)
+  fdist    = db.Column(db.Integer, nullable=False)
+  param10  = db.Column(db.Float, nullable=True)
+  param20  = db.Column(db.Float, nullable=True)
+  sdist    = db.Column(db.Integer, nullable=False)
+  param11  = db.Column(db.Float, nullable=True)
+  param21  = db.Column(db.Float, nullable=True)
+  param31  = db.Column(db.Float, nullable=True)
+  user_id  = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+  def __repr__(self):
+    return f"Model('{self.riskname}', '{self.category}')"
+
 class Post(db.Model):
   id = db.Column(db.Integer, primary_key=True)
   title = db.Column(db.String(100), nullable=False)
