@@ -7,71 +7,44 @@
     <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#AddRisk"><i class="fas fa-plus-circle"></i> Add Risk</a> 
     <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#Simulate"><i class="fab fa-creative-commons-sampling"></i> Simulate</a></span>
   </div>
-    
   <div class="card-body">
     <p class="d-flex justify-content-between align-items-center">
-      <a href="#" class="btn btn-warning" data-toggle="modal"><i class="fas fa-chart-bar"></i> Histogram</a> 
-      <a href="#" class="btn btn-warning" data-toggle="modal">S-Curve</a> 
-      <a href="#" class="btn btn-warning" data-toggle="modal"><i class="fas fa-align-left"></i> Corr. Tornado</a> 
-      <a href="#" class="btn btn-warning" data-toggle="modal">Sensitivity Tornado</a> 
-      <a href="#" class="btn btn-warning" data-toggle="modal">Scatter Plot</a> 
+      
     </p>
-    <div class="card" id="m01">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>#1 Unknown site conditions </span>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-secondary">Exclude</button>
-          <button type="button" class="btn btn-secondary">Update</button>
-          <button type="button" class="btn btn-secondary">Delete</button>
-        </div>        
-      </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush itemDescription">
-          <li class="list-group-item">(@category)Technical Risk</li>
-          <li class="list-group-item">(@Frequency Dist.)Bernoulli, 0.25,None,0</li>
-          <li class="list-group-item">(@Severity  Dist.)Uniform, 400,800,None,423.31</li>            
-        </ul>
-      </div>
-    </div>
     
-    <div class="card" id="m02">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>#2 (@risk name)Damage or theft to equipment</span>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-secondary">Exclude</button>
-          <button type="button" class="btn btn-secondary">Update</button>
-          <button type="button" class="btn btn-secondary">Delete</button>
+    {% for model in models %}  
+      <div class="card" id="m01">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>#{{model.id}} {{ model.modelname }} </span>          
+          <div class="btn-group" role="group" aria-label="Basic example">
+            <button type="button" class="btn btn-secondary">Exclude</button>
+            <a href="{{ url_for('qpra.updateModel', id=model.id) }}" class="btn btn-secondary">Update</a>
+            <a href="{{ url_for('qpra.delModel', id=model.id) }}" class="btn btn-secondary">Delete</a>           
+          </div>        
         </div>
+        <div class="card-body">
+          <ul class="list-group list-group-flush itemDescription">
+            <li class="list-group-item">Category: {{ model.category }}</li>
+            <li class="list-group-item"><strong>Prob: {{'{0:0.2f}'.format(model.fprob) if model.fprob else '0.00'}}</strong> Distribution:{{ model.fdist }}( {{ model.param10 }}
+              {{', {0:0.2f}'.format(model.param20) if model.param20 else ''}} )
+            <li class="list-group-item"><strong>Prob: {{'{0:0.2f}'.format(model.sprob) if model.sprob else '0.00'}}</strong> Distribution:{{ model.sdist }}( {{ model.param11 }}
+              {{', {0:0.2f}'.format(model.param21) if model.param21 else ''}} 
+              {{', {0:0.2f}'.format(model.param31) if model.param31 else ''}} )
+          </ul>
+        </div>
+        <meta name="id" property="text" content="{{model.id}}" />
+        <meta name="modelname" property="text" content="{{ model.modelname }}" />
+        <meta name="category" property="text" content="{{ model.category }}" />
+        <meta name="fdist" property="text" content="{{ model.fdist }}" />
+        <meta name="param10" property="text" content="{{ model.param10 }}" />
+        <meta name="param20" property="text" content="{{ model.param20 }}" />
+        <meta name="sdist" property="text" content="{{ model.sdist }}" />
+        <meta name="param11" property="text" content="{{ model.param11 }}" />
+        <meta name="fprob" property="text" content="{{ model.fprob }}" />
+        <meta name="sprob" property="text" content="{{ model.sprob }}" />
       </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush itemDescription">
-          <li class="list-group-item">(@category)Logistics Risk</li>
-          <li class="list-group-item">(@Frequency Dist.)Poisson, 4,None,4</li>
-          <li class="list-group-item">(@Severity  Dist.)Pert, 70,80,200,91.73</li>
-        </ul>
-      </div>
-    </div>
-    
-    <div class="card" id="m03">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span>#3 (@risk name)Community problems</span>
-        <div class="btn-group" role="group" aria-label="Basic example">
-          <button type="button" class="btn btn-secondary">Exclude</button>
-          <button type="button" class="btn btn-secondary">Update</button>
-          <button type="button" class="btn btn-secondary">Delete</button>
-        </div>        
-      </div>
-      <div class="card-body">
-        <ul class="list-group list-group-flush itemDescription">
-          <li class="list-group-item">(@category)Socio-political Risk</li>
-          <li class="list-group-item">(@Frequency Dist.)Binomial, 30,0.05,2</li>
-          <li class="list-group-item">(@Severity  Dist.)TriangPerc, 150,0.1,200,152.29</li>
-        </ul>
-      </div>
-    </div>
-
+    {% endfor %}
   </div>  <!-- card-body -->
-
 </div>   <!-- card -->
 
 <!-- [Add Risk] Modal -->
@@ -122,11 +95,14 @@
           </div>  
 
           <div class="form-row">
-            <div class="form-group col-md-6">
-              <label for="Parameters10">&nbsp;Parameters</label>
+            <div class="form-group col-md-3">
+              <label for="Parameter10"><span id="namePara10">Parameter</span></label>
             </div>
             <div class="form-group col-md-3">
               {{ modelform.Parameter10(class="form-control form-control-sm") }}
+            </div>
+            <div class="form-group col-md-3">
+              <label for="Parameter20"><span id="namePara20">Parameter</span></label>
             </div>  
             <div class="form-group col-md-3">
               {{ modelform.Parameter20(class="form-control form-control-sm") }}
@@ -143,23 +119,134 @@
           </div>  
 
           <div class="form-row">
-            <div class="form-group col-md-3">
-              <label for="Parameters11">&nbsp;Parameters</label>
+            <div class="form-group col-md-2">
+              <label for="Parameter11"><span id="namePara11">Parameters</span></label>
             </div>
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
               {{ modelform.Parameter11(class="form-control form-control-sm") }}
             </div>  
-            <div class="form-group col-md-3">
+          
+            <div class="form-group col-md-2">
+              <label for="Parameter21"><span id="namePara21">Parameters</span></label>
+            </div>
+            <div class="form-group col-md-2">
               {{ modelform.Parameter21(class="form-control form-control-sm") }}
             </div>  
-            <div class="form-group col-md-3">
+          
+            <div class="form-group col-md-2">
+              <label for="Parameter31"><span id="namePara31">Parameters</span></label>
+            </div>
+            <div class="form-group col-md-2">
               {{ modelform.Parameter31(class="form-control form-control-sm") }}
             </div>  
           </div>
 
         </div>
         <div class="modal-footer">
-          <!-- <input type="submit" value="Add" class="btn btn-primary"/> -->
+          {{ modelform.submit(class="btn btn-outline-info") }}
+          <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveCookies4Model();">Close</button>
+        </div>        
+      </form>            
+    </div>
+  </div>
+</div>
+
+<!-- [Update Risk] Modal -->
+<div id="UpdateRisk" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form id="modelParameters" method="POST" action="{{ url_for('qpra.newModel') }}" onsubmit="return saveCookies4Model()">
+        {{ modelform.csrf_token }}
+        <div class="modal-header">
+          <h4 class="modal-title">Update Model</h4>
+        </div>
+        <div class="modal-body">
+            
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="riskModelName">{{ modelform.ModelName.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {% if modelform.ModelName.errors %}
+                {{ modelform.ModelName(class="form-control form-control-sm is-invalid") }}
+                <div class="invalid-feedback">
+                  {% for error in modelform.ModelName.errors %}
+                    <span>필수입력항목입니다</span>
+                  {% endfor %}
+                </div>
+              {% else %}
+                {{ modelform.ModelName(class="form-control form-control-sm") }}
+              {% endif %}
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="Category">{{ modelform.Category.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {{ modelform.Category(class="form-control form-control-sm") }}
+            </div>  
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="FrqDist">{{ modelform.FrqDist.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {{ modelform.FrqDist(class="form-control form-control-sm") }}              
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="Parameter10"><span id="namePara10">Parameter</span></label>
+            </div>
+            <div class="form-group col-md-3">
+              {{ modelform.Parameter10(class="form-control form-control-sm") }}
+            </div>
+            <div class="form-group col-md-3">
+              <label for="Parameter20"><span id="namePara20">Parameter</span></label>
+            </div>  
+            <div class="form-group col-md-3">
+              {{ modelform.Parameter20(class="form-control form-control-sm") }}
+            </div>  
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="SvrDist">{{ modelform.SvrDist.label(class="form-control-label") }}</label>
+            </div>
+            <div class="form-group col-md-9">
+              {{ modelform.SvrDist(class="form-control form-control-sm") }}
+            </div>  
+          </div>  
+
+          <div class="form-row">
+            <div class="form-group col-md-2">
+              <label for="Parameter11"><span id="namePara11">Parameters</span></label>
+            </div>
+            <div class="form-group col-md-2">
+              {{ modelform.Parameter11(class="form-control form-control-sm") }}
+            </div>  
+          
+            <div class="form-group col-md-2">
+              <label for="Parameter21"><span id="namePara21">Parameters</span></label>
+            </div>
+            <div class="form-group col-md-2">
+              {{ modelform.Parameter21(class="form-control form-control-sm") }}
+            </div>  
+          
+            <div class="form-group col-md-2">
+              <label for="Parameter31"><span id="namePara31">Parameters</span></label>
+            </div>
+            <div class="form-group col-md-2">
+              {{ modelform.Parameter31(class="form-control form-control-sm") }}
+            </div>  
+          </div>
+
+        </div>
+        <div class="modal-footer">
           {{ modelform.submit(class="btn btn-outline-info") }}
           <button type="button" class="btn btn-default" data-dismiss="modal" onclick="saveCookies4Model();">Close</button>
         </div>        
@@ -174,7 +261,7 @@
     <!-- Modal content-->
     <div class="modal-content">
       
-      <form id="simParameters" onsubmit="return saveCookies4Sim()">
+      <form id="simParameters" method="POST" action="{{ url_for('qpra.runSim') }}" onsubmit="return saveCookies4Sim()">
         {{ simform.csrf_token }}
         <div class="modal-header">        
           <h4 class="modal-title">Simulate</h4>
@@ -306,7 +393,20 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.slim.min.js" integrity="sha256-u7e5khyithlIdTpu22PHhENmPcRdFiHRjhAuHcs05RI=" crossorigin="anonymous"></script>
 <script>
-
+  const DT = {'BER':['Bernoulli Discrete',1,'p']
+    ,'BIN':['Binomial Discrete',2,'n','p']
+    ,'POI':['Poisson Discrete',1,'lambda']
+    ,'INT':['IntUniform Discrete',2,'min','max']
+    ,'EXP':['Exponential Continuous',1,'beta']
+    ,'GAM':['Gamma Continuous',2,'alpha','beta']
+    ,'LOG':['LogNormal Continuous',2,'miu','sigma']
+    ,'NOR':['Normal Continuous',2,'miu','sigma']
+    ,'PER':['Pert Continuous',3,'mode','min','max']
+    ,'PEP':['PertPerc Continuous',3,'mode','percmin','percmax']
+    ,'TRI':['Triangular Continuous',3,'mode','min','max']
+    ,'TRP':['TriangPerc Continuous',3,'mode','percmin','percmax']
+    ,'UNI':['Uniform Continuous',2,'min','max']};
+  
   function setCookie(cname, cvalue, exdays) {
     const d = new Date();
     d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
@@ -349,11 +449,83 @@
     return true;
   }
 
+  function updateFrqDist(FrqDistValue){
+    if( FrqDistValue=='None' ) return false;
+    const numsParam = DT[FrqDistValue][1];
+    switch(numsParam){
+      case 1:
+        nameParam1 = DT[FrqDistValue][2];
+        $('#namePara10').text(nameParam1);
+        $('#namePara20').css("display","none");
+        $('#Parameter20').css("display","none");
+        break;
+      case 2: 
+        nameParam1 = DT[FrqDistValue][2];
+        nameParam2 = DT[FrqDistValue][3];
+        $('#namePara10').text(nameParam1);
+        $('#namePara20').text(nameParam2);
+        $('#namePara20').css("display","");
+        $('#Parameter20').css("display","");
+        break; 
+    }
+  }
+
+  function updateSvrDist(SvrDistValue){
+    if( SvrDistValue=='None' ) return false;
+    const numsParam = DT[SvrDistValue][1];
+    switch(numsParam){
+      case 1:
+        nameParam1 = DT[SvrDistValue][2];
+        $('#namePara11').text(nameParam1);
+        
+        $('#namePara21').css("display","none");
+        $('#Parameter21').css("display","none");
+        
+        $('#namePara31').css("display","none");
+        $('#Parameter31').css("display","none");
+        break;
+      case 2: 
+        nameParam1 = DT[SvrDistValue][2];
+        nameParam2 = DT[SvrDistValue][3];
+        $('#namePara11').text(nameParam1);
+        
+        $('#namePara21').text(nameParam2);
+        $('#namePara21').css("display","");
+        $('#Parameter21').css("display","");
+        
+        $('#namePara31').css("display","none");
+        $('#Parameter31').css("display","none");
+        break; 
+      case 3: 
+        nameParam1 = DT[SvrDistValue][2];
+        nameParam2 = DT[SvrDistValue][3];
+        nameParam3 = DT[SvrDistValue][4];
+        $('#namePara11').text(nameParam1);
+        
+        $('#namePara21').text(nameParam2);
+        $('#namePara21').css("display","");
+        $('#Parameter21').css("display","");
+        
+        $('#namePara31').text(nameParam3);
+        $('#namePara31').css("display","");
+        $('#Parameter31').css("display","");
+        break;   
+    }
+  }
   $(document).ready(function(){   
     modelsExcluded = []; 
     ['Category','FrqDist','SvrDist','ModelName','Parameter10','Parameter20','Parameter11','Parameter21','Parameter31'].forEach( (item)=>{ $('#'+item).val(getCookie(item)); } );
     ['Samples','Iterations','Percentile1','Percentile2','Target1','Target2','Bins'].forEach( (item) => { $('#'+item).val(getCookie(item)); } );
     ['Minimum','Maximum','Mean','Median','Mode','Standard_Deviation','Skewness','Kurtosis'].forEach( (item) => { $('#'+item).prop('checked', getCookie(item)==='true'); } );
+    updateFrqDist(getCookie('FrqDist'));
+    updateSvrDist(getCookie('SvrDist'));
+  });
+
+  $('#FrqDist').on('change', function() {
+    updateFrqDist(this.value);
+  });
+  $('#SvrDist').on('change', function() {    
+    updateSvrDist(this.value);
   });
 
   $(document).on('click', 'div div div button', function(e){
